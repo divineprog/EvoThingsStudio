@@ -41,13 +41,9 @@ var EVENTS = require('./system-events.js')
 /***	 Module variables	   ***/
 /*********************************/
 
-// Workbench version code should be incremented on each new release.
-// The version code can be used by the server to display info.
-var mWorkbenchVersionCode = 8
-
-// Version of the server message protocol implemented on top of socket.io.
-// Increment when the protocol has changed.
-var mProtocolVersion = 5
+// Workbench version.
+// TODO: Get this from somewhere.
+var mWorkbenchVersion = '2.3.0'
 
 var mIsConnected = false
 var mSessionID = null
@@ -78,24 +74,21 @@ var mBasePath = ''
  */
 exports.connectToRemoteServer = function()
 {
-	LOGGER.log('[file-server.js] Connecting to remote server')
+	console.log('[file-server.js] Connecting to remote server')
+
 	// Message handler table.
 	var messageHandlers =
 	{
 		// Messages from the server to the Workbench.
-		'workbench.set-session-id': onMessageWorkbenchSetSessionID,
-		'workbench.set-connect-key': onMessageWorkbenchSetConnectKey,
 		'workbench.client-info': onMessageWorkbenchClientInfo,
-		'client.instrumentation': onMessageWorkbenchClientInstrumentation,
+		'workbench.instrumentation': onMessageWorkbenchClientInstrumentation,
 		'workbench.get-resource': onMessageWorkbenchGetResource,
 		'workbench.log': onMessageWorkbenchLog,
 		'workbench.javascript-result': onMessageWorkbenchJavaScriptResult,
 		'workbench.user-message': onMessageWorkbenchUserMessage,
-		'workbench.user-login': onMessageWorkbenchUserLogin,
-		'workbench.user-logout': onMessageWorkbenchUserLogout
 	}
 
-	LOGGER.log('[file-server.js] connecting to server: ' + mRemoteServerURL)
+	console.log('[file-server.js] connecting to server: ' + mRemoteServerURL)
 
 	// Create socket.io instance.
 	var socket = SOCKETIO_CLIENT(
@@ -109,20 +102,20 @@ exports.connectToRemoteServer = function()
 	// Connect function.
 	socket.on('connect', function()
 	{
-		LOGGER.log('[file-server.js] Connected to server')
+		console.log('[file-server.js] Connected to server')
 		mIsConnected = true
 		EVENTS.publish(EVENTS.CONNECT, { event: 'connected' })
 		//exports.requestConnectKey()
 		mSessionID = SETTINGS.getSessionID()
 
-		LOGGER.log('[file-server.js] workbench.connected session: ' + mSessionID)
+		console.log('[file-server.js] workbench.connected session: ' + mSessionID)
 
 		sendConnectMessage()
 	})
 
 	socket.on('error', function(error)
 	{
-		LOGGER.log('[file-server.js] socket error: ' + error)
+		console.log('[file-server.js] socket error: ' + error)
 	})
 
 	socket.on('disconnect', function()
@@ -158,30 +151,15 @@ function sendConnectMessage()
 		osrelease: OS.release(),
 		ostype: OS.type()
 	}
-	var uuid = SETTINGS.getEvoGUID()
-	LOGGER.log('[file-server.js] sendConnectMessage called. ------ uuid = '+uuid)
+	var workbenchID = SETTINGS.getEvoGUID()
+	console.log('[file-server.js] sendConnectMessage called. ------ workbenchID = '+workbenchID)
 	mDeviceInfo = info
-	sendMessageToServer(mSocket, 'workbench.connected', { sessionID: mSessionID, uuid: uuid, info: info })
+	sendMessageToServer(mSocket, 'workbench.connected', { workbenchID: mSessionID, info: info })
 	mHeartbeatTimer = setInterval(heartbeat, mHeartbeatInterval)
 	heartbeat()
 }
 
-function sendResetMessage()
-{
-	var info =
-	{
-		arch: OS.arch(),
-		platform: OS.platform(),
-		osrelease: OS.release(),
-		ostype: OS.type()
-	}
-	var uuid = SETTINGS.getEvoGUID()
-	LOGGER.log('[file-server.js] ------ Sending factory reset')
-	mDeviceInfo = info
-	sendMessageToServer(mSocket, 'workbench.factory-reset', { sessionID: mSessionID, uuid: uuid, info: info })
-	mHeartbeatTimer = setInterval(heartbeat, mHeartbeatInterval)
-	heartbeat()
-}
+exports.sendConnectMessage = sendConnectMessage
 
 function heartbeat()
 {
@@ -202,50 +180,17 @@ function onMessageWorkbenchUserLogout(socket, message)
 	EVENTS.publish(EVENTS.LOGOUT, {event: 'logout'})
 }
 
-function sendMessageToServer(_socket, name, data)
+function sendMessageToServer(name, data)
 {
-	var socket = _socket || mSocket
-	var uuid = SETTINGS.getEvoGUID()
-
-	socket.emit('hyper-workbench-message', {
-		protocolVersion: mProtocolVersion,
-		workbenchVersionCode: mWorkbenchVersionCode,
+	var workbenchID = SETTINGS.getEvoGUID()
+	mSocket.emit('hyper-workbench-message', {
+		workbenchVersion: mWorkbenchVersion,
+		workbenchID: workbenchID,
 		name: name,
-		sessionID: mSessionID,
-		UUID: uuid,
 		data: data })	
 }
 
-function onMessageWorkbenchSetSessionID(socket, message)
-{
-	LOGGER.log('[file-server.js] onMessageWorkbenchSetSessionID: ' + message.data.sessionID)
-
-	// Set/display session id if we got it.
-	if (message.data.sessionID)
-	{
-		// Save the session id.
-		mSessionID = message.data.sessionID
-
-		// Save session id in settings.
-		SETTINGS.setSessionID(mSessionID)
-
-		// Send event width session id.
-		// TODO: Who is listening to this? No one it seems.
-		EVENTS.publish(EVENTS.SETSESSIONID, mSessionID)
-	}
-
-	// Display user message if we got one.
-	if (message.userMessage)
-	{
-		EVENTS.publish(EVENTS.USERMESSAGE, message.userMessage)
-	}
-}
-
-function onMessageWorkbenchSetConnectKey(socket, message)
-{
-	//console.dir(message)
-	mRequestConnectKeyCallback && mRequestConnectKeyCallback(message)
-}
+exports.sendMessageToServer = sendMessageToServer
 
 function onMessageWorkbenchClientInfo(socket, message)
 {
@@ -264,7 +209,7 @@ function onMessageWorkbenchClientInfo(socket, message)
 function onMessageWorkbenchClientInstrumentation(socket, message)
 {
 	// Notify UI about clients.
-	//LOGGER.log('[file-server.js] ******** got client instrumentation')
+	//console.log('[file-server.js] ******** got client instrumentation')
 	//console.dir(message)
 
 	EVENTS.publish(EVENTS.VIEWERSINSTRUMENTATION, message.data)
@@ -282,10 +227,10 @@ function onMessageWorkbenchGetResource(socket, message)
 		message.data.path,
 		ifModifiedSince)
 
-	sendMessageToServer(socket, 'workbench.resource-response',
+	sendMessageToServer(
+		'workbench.resource-response',
 		{
 			id: message.data.id,
-			sessionID: mSessionID,
 			appID: mAppID,
 			response: response
 		})
@@ -320,12 +265,12 @@ function onMessageWorkbenchJavaScriptResult(socket, message)
 
 function onMessageWorkbenchUserMessage(socket, message)
 {
-	// Display message if we gone one.
-	if (message.userMessage)
+	// Display message if we got one.
+	if (message.data)
 	{
 		// Pass the message to the callback function,
 		// this displays the message in the UI.
-		EVENTS.publish(EVENTS.USERMESSAGE, message.userMessage)
+		EVENTS.publish(EVENTS.USERMESSAGE, message.data)
 	}
 }
 
@@ -340,21 +285,9 @@ exports.isConnected = function()
 /**
  * External.
  */
-exports.requestConnectKey = function()
-{
-	// On first call mSessionID will be null, if server goes down
-	// and we connect again we will pass our session id so the server
-	// can restore our session.
-	LOGGER.log('[file-server.js] requesting connect key from server')
-	sendMessageToServer(mSocket, 'workbench.request-connect-key', { sessionID: mSessionID })
-}
-
-/**
- * External.
- */
 exports.sendDisconnectAllViewersToServer = function()
 {
-	sendMessageToServer(mSocket, 'workbench.disconnect-viewers', { sessionID: mSessionID })
+	sendMessageToServer('workbench.disconnect-viewers', { })
 }
 
 /**
@@ -362,7 +295,7 @@ exports.sendDisconnectAllViewersToServer = function()
  */
 exports.disconnectFromRemoteServer = function()
 {
-	LOGGER.log('[file-server.js] Disconnecting from remote server')
+	console.log('[file-server.js] Disconnecting from remote server')
 	clearTimeout(mHeartbeatTimer)
 	if (mSocket)
 	{
@@ -495,14 +428,6 @@ function getAppURL()
 	return '/' + mAppID + '/' + mAppFile
 }
 
-/**
- * External.
- */
-exports.getUserKey = function()
-{
-	return mUserKey
-}
-
 exports.getClientInfo = function()
 {
 	console.log('++++++++++++++++++++++++++ '+mFoo+' ++++++++++SERVER.getClientInfo returning')
@@ -517,12 +442,12 @@ exports.getClientInfo = function()
  */
 exports.runApp = function()
 {
-	//serveUsingResponse200()
+	// Useful for testing without client caching: serveUsingResponse200()
 	serveUsingResponse304()
-	console.log('@@@ [file-server.js] run app: ' + getAppURL())
-	sendMessageToServer(mSocket, 'workbench.run',
+	console.log('[file-server.js] run app: ' + getAppURL())
+	sendMessageToServer(
+		'workbench.run',
 		{
-			sessionID: mSessionID,
 			appID: mAppID,
 			appName: hyper.UI.getTitleFromFile(exports.getAppPath()),
 			url: getAppURL(),
@@ -538,9 +463,9 @@ exports.runApp = function()
 exports.reloadApp = function()
 {
 	serveUsingResponse304()
-	sendMessageToServer(mSocket, 'workbench.reload',
+	sendMessageToServer(
+		'workbench.reload',
 		{
-			sessionID: mSessionID,
 			appID: mAppID,
 			appName: hyper.UI.getTitleFromFile(exports.getAppPath())
 		})
@@ -548,16 +473,16 @@ exports.reloadApp = function()
 }
 
 /**
- * External.
+ * External. clientID is an optional param.
  */
-exports.evalJS = function(code, client)
+exports.evalJS = function(code, clientID)
 {
-	console.log('file-server.js evalJS')
-	sendMessageToServer(mSocket, 'workbench.eval',
+	if (!clientID) clientID = null
+	sendMessageToServer(
+		'workbench.eval',
 		{
-			sessionID: mSessionID,
 			code: code,
-			clientUUID: client ? client.UUID: ''
+			clientID: clientID
 		})
 }
 
@@ -616,13 +541,3 @@ exports.getSessionID = function()
 {
 	return mSessionID
 }
-
-exports.sendMessageToServer = sendMessageToServer
-exports.sendConnectMessage = sendConnectMessage
-exports.sendResetMessage = sendResetMessage
-
-
-
-
-
-
