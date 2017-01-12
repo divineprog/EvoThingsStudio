@@ -49,11 +49,14 @@ window.hyper = hyper
 // UI-related functions.
 hyper.UI = {}
 
-// DOM objects.
-hyper.UI.DOM = {}
-
 // Reference to jQuery.
 hyper.UI.$ = window.$
+
+// Reference to Auth0.
+hyper.UI.Auth0Lock = window.Auth0Lock
+
+// DOM objects.
+hyper.UI.DOM = {}
 
 // Reference to DOM screen object.
 hyper.UI.DOM.screen = window.screen
@@ -125,10 +128,9 @@ hyper.UI.main = function()
 }
 
 // Call main function to setup UI and server.
-$(document).ready(function(){
-  console.log('DOM Ready fired');
+$(document).ready(function() {
   hyper.UI.main()
   module.exports.hyper = hyper
-});
+})
 
 })() // End of closure wrapper.

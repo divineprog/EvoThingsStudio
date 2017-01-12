@@ -43,7 +43,14 @@ exports.defineUIEvents = function(hyper)
 
 	hyper.UI.$('.button-do-login').click(function()
 	{
-		// TODO: Login
+		USER_HANDLER.doLogin()
+	})
+
+	// ************** Logout Button **************
+
+	hyper.UI.$('.button-do-logout').click(function()
+	{
+		USER_HANDLER.doLogout()
 	})
 
 	// ************** Getting Started Screen Button **************
@@ -52,7 +59,6 @@ exports.defineUIEvents = function(hyper)
 	{
 		hyper.UI.showTab('getting-started')
 	})
-
 
 	// ************** Open Settings Button **************
 
@@ -103,7 +109,7 @@ exports.defineUIEvents = function(hyper)
 		hyper.UI.openInBrowser(MAIN.DOC)
 	})
 	
-  // ************** FAQ Button **************
+	// ************** FAQ Button **************
 
 	hyper.UI.$('.button-faq').click(function()
 	{
@@ -358,26 +364,6 @@ exports.defineUIEvents = function(hyper)
 		hyper.UI.openViewersWindow()
 	})
 
-	// ************** Login Button **************
-
-	// Set login button action handler. The button toggles login/logout.
-	hyper.UI.$('.button-do-login').click(function()
-	{
-		var user = USER_HANDLER.getUser()
-		if (user && !user.picture)
-		{
-			loginUser()
-		}
-	})
-
-	// ************** Login Close Button **************
-
-	hyper.UI.$('#login-screen-login-close-button').click(function()
-	{
-		hideLoginScreen()
-	})
-
-
 	// ************** Login Events **************
 
 	EVENTS.subscribe(EVENTS.CONNECT, function(obj)
@@ -423,54 +409,13 @@ exports.defineUIEvents = function(hyper)
 	EVENTS.subscribe(EVENTS.DISCONNECT, function(obj)
 	{
 		console.log('[main-window-events.js] socket.io disconnect')
-		mDisconnectTimer = setTimeout(function()
-		{
-			//logoutUser()
-		}, DISCONNECT_DELAY)
-	})
-
-	function loginUser()
-	{
-		USER_HANDLER.createLoginClient()
-
-		USER_HANDLER.startLoginSequence()
-		var loginURL = USER_HANDLER.getLoginURL()
-		console.log('[main-window-events.js] loginURL : ' + loginURL)
-		showLoginScreen(loginURL)
-	}
-
-	function logoutUser()
-	{
-		if (USER_HANDLER.getUser())
-		{
-			// Open logout url in hidden logout iframe.
-			var logoutURL = USER_HANDLER.getLogoutURL()
-			hyper.UI.$('#login-screen-logout-iframe').attr('src', logoutURL)
-
-			// TODO: Find better solution for managing double logouts, when server can't find us and reply back
-			setTimeout(function()
+		mDisconnectTimer = setTimeout(
+			function() 
 			{
-				if (USER_HANDLER.getUser())
-				{
-					USER_HANDLER.clearUser()
-					EVENTS.publish(EVENTS.LOGOUT, {event: 'logout'})
-				}
-			}, 1000)
-		}
-	}
-
-	function showLoginScreen(loginURL)
-	{
-		hyper.UI.$('#login-screen-login').show()
-		//hyper.UI.$('#login-screen-login-loading-message').show()
-		//hyper.UI.$('#login-screen-login-iframe').attr('src', loginURL)
-		hyper.UI.openInBrowser(loginURL)
-	}
-
-	function hideLoginScreen()
-	{
-		hyper.UI.$('#login-screen-login').hide()
-	}
+				// EMPTY
+			},
+			DISCONNECT_DELAY)
+	})
 
 	function showUserInfo(user)
 	{

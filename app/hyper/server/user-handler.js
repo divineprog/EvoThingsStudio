@@ -35,18 +35,57 @@ var EVENTS = require('./system-events.js')
 /***	 Module variables	  ***/
 /*********************************/
 
-var mLoginClient = null
 var mUser = null
+var mAuth0Lock = null
 
 /*********************************/
 /***		Functions		  ***/
 /*********************************/
 
-exports.createLoginClient = function()
+exports.doLogin = function()
 {
+	// Show auth0 UI
+	if (!mAuth0Lock) 
+	{ 
+		mAuth0Lock = new hyper.UI.Auth0Lock(
+			'ik5CtR3dBIIHPUvJ7pRK7lG6x2252FeB', 
+			'mikael-evothings.eu.auth0.com',
+			{ auth: { sso: false } })
+	}
+	
+	mAuth0Lock.on('authenticated', function(authResult) 
+	{
+		console.log('authenticated')
 
+		console.log('token: ' + authResult.accessToken)
+
+		// sendLoginToServer(clientID, authResult.accessToken)
+
+		lock.getProfile(authResult.idToken, function(error, profile)
+		{
+			if (error) 
+			{
+				// Handle error
+				console.log('getProfile error: ' + error)
+				return
+			}
+			//localStorage.setItem('id_token', authResult.idToken);
+			// Display user information
+			console.log('login ok')
+			
+			console.log('profile:')
+			console.log(profile)
+			console.log('authResult:')
+			console.log(authResult)
+			//getUserInfo(authResult.accessToken)
+
+			});
+		})
+
+		mAuth0Lock.show()
 }
 
+/*
 exports.setUser = function(uobj)
 {
 	console.log('[user-handler.js] LOGIN: setting user to "'+uobj.name+'"')
@@ -61,43 +100,8 @@ exports.clearUser = function()
 	mUser = undefined
 }
 
-exports.startLoginSequence = function()
-{
-	var sessionID = SERVER.getSessionID()
-	console.log('[user-handler.js] LOGIN: starting Login Sequence. Registering authentication callback with proxy. sessionID = '+sessionID)
-	SERVER.sendMessageToServer(undefined, 'workbench.registerauthcallback', { sessionID: sessionID })
-}
-
-exports.getLoginURL = function()
-{
-	var sessionID = SERVER.getSessionID()
-
-	var serverAddress = getLoginServerAddress()
-	var loginURL = serverAddress+'/?uuid='+sessionID+'&loginonly=true'
-
-	console.log('[user-handler.js] LOGIN: loginURL = '+loginURL)
-
-	return loginURL
-}
-
-exports.getLogoutURL = function()
-{
-	var sessionID = SERVER.getSessionID()
-
-	var serverAddress = getLoginServerAddress()
-	var logoutURL = serverAddress+'/?uuid='+sessionID+'&loginonly=true&logout=true'
-	var checked = SETTINGS.getRememberMe()
-	console.log('[user-handler.js] checked remember me = '+checked)
-	if(!checked)
-	{
-		logoutURL += '&federated'
-	}
-
-	console.log('[user-handler.js] LOGOUT: logoutURL = '+logoutURL)
-
-	return logoutURL
-}
-
+// TODO: persist login?
+// Get user info from server on startup?
 exports.getUser = function()
 {
 	return mUser
@@ -107,13 +111,8 @@ exports.clearUser = function()
 {
 	mUser = undefined
 }
+*/
 
-function getLoginServerAddress()
-{
-	var serverAddress = SETTINGS.getReloadServerAddress()
-	serverAddress = serverAddress + '/cloud'
-	return serverAddress
-}
-
-EVENTS.subscribe(EVENTS.LOGIN, exports.setUser)
-EVENTS.subscribe(EVENTS.LOGOUT, exports.clearUser)
+//EVENTS.publish(EVENTS.LOGOUT, {event: 'logout'})
+//EVENTS.subscribe(EVENTS.LOGIN, exports.setUser)
+//EVENTS.subscribe(EVENTS.LOGOUT, exports.clearUser)

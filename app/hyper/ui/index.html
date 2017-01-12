@@ -8,11 +8,13 @@ Copyright (c) 2013-2015 Evothings AB
 -->
 <!-- HTML 5 differences from HTML 4: http://www.w3.org/TR/2008/WD-html5-diff-20080122/ -->
 <head>
-	<meta charset="utf-8">
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<link href="../../node_modules/material-design-lite/material.min.css" rel="stylesheet">
 	<link href="../libs/bootstrap-3.3.5-dist/css/bootstrap.min.css" rel="stylesheet">
 	<script>window.$ = window.jQuery = require('../libs/jquery/jquery-2.1.4.min.js');</script>
 	<script src="../libs/jquery/jquery-ui.min.js"></script>
+	<script src="https://cdn.auth0.com/js/lock/10.9.2/lock.min.js"></script>
 	<script src="../libs/bootstrap-3.3.5-dist/js/bootstrap.min.js"></script>
 	<script src="../../node_modules/material-design-lite/material.min.js"></script>
 	<link href="css/hyper-common.css" rel="stylesheet" />
@@ -886,7 +888,7 @@ Copyright (c) 2013-2015 Evothings AB
 						</div>
 
 						<div class="login-screen-element">
-							<button type="button" class="button-do-login btn et-btn-green">Login</button>
+							<button type="button" id="id-button-do-login" class="button-do-login btn et-btn-green">Login</button>
 						</div>
 
 						<div class="screen-start-help framed-box style-big-para">
@@ -901,23 +903,6 @@ Copyright (c) 2013-2015 Evothings AB
 							class="button-toggle-help btn et-btn-charcoal login-screen-element">
 							Hide Help
 						</button>
-
-						<!-- Div that holds the login iframe -->
-						<div id="login-screen-login">
-							<button id="login-screen-login-close-button" class="btn btn-hyper-toolbar et-btn-stone-light">
-								Close
-							</button>
-
-							<p style="padding-top:150px;">
-								<h3 id="login-screen-login-loading-message">Please go to the authentication window that has been opened in your system browser to complete personalization.</h3>
-							</p>
-						</div>
-
-						<!-- Hidden logout iframe -->
-						<iframe id="login-screen-logout-iframe"
-							style="display:none;"
-							src="" nwdisable nwfaketop>
-						</iframe>
 					</div>
 				</div>
 			</div>
@@ -960,13 +945,15 @@ Copyright (c) 2013-2015 Evothings AB
 
 		<div id="panel-bottom">
 			<div>
-				<p style="float:left;">Status: <b><span id="connect-address">Waiting to connect</span></b></p>
+				<p style="float:left;">Status: <b><span id="connect-status">Waiting to connect</span></b></p>
 				<p style="float:left;margin-left:25px"><b><span id="login-info"></span></b></p>
+				<!-- TODO: Do we need a button here for something? 
 				<button type="button"
 						style="margin-top:-6px; margin-left:5px"
 						class="et-btn-blue btn btn-default">
 					Do Magic
 				</button>
+				-->
 				<p style="float:right;">Viewers: <b><span id="connect-counter">0</span></b> Files: <b><span id="files-counter">0</span></b></p>
 			</div>
 		</div>
@@ -983,6 +970,32 @@ Copyright (c) 2013-2015 Evothings AB
 	</div> <!-- panel-page -->
 
 	<script src="main-window.js"></script>
+
+	<script>
+    var lock = new Auth0Lock(
+			'ik5CtR3dBIIHPUvJ7pRK7lG6x2252FeB', 
+			'mikael-evothings.eu.auth0.com',
+			{ auth: { sso: false } })
+
+    //window.electron = {};
+
+    document.getElementById('id-button-do-login').addEventListener('click', function() {
+      lock.show(function(err, profile, token) {
+        if (err) {
+
+          // Error callback
+          console.log("Something went wrong: ", err);
+
+        } else {
+
+          // Success calback. Save the profile and JWT token.
+          console.log('profile', JSON.stringify(profile));
+          console.log('id_token', token);
+
+        }
+      });
+	});
+	</script>
 
 </body>
 </html>

@@ -831,7 +831,7 @@ exports.defineUIFunctions = function(hyper)
 
 	hyper.UI.displayConnectStatus = function(status)
 	{
-		hyper.UI.DOM.document.querySelector('#connect-address').innerHTML = status
+		hyper.UI.DOM.document.querySelector('#connect-status').innerHTML = status
 	}
 
 	hyper.UI.setConnectedCounter = function(value)
