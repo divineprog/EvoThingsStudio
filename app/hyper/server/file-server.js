@@ -32,7 +32,6 @@ var PATH = require('path')
 var SOCKETIO_CLIENT = require('socket.io-client')
 var FILEUTIL = require('./file-util.js')
 var LOADER = require('./file-loader.js')
-var LOGGER = require('./log.js')
 var SETTINGS = require('../settings/settings.js')
 var UUID = require('./uuid.js')
 var EVENTS = require('./system-events.js')
@@ -54,7 +53,6 @@ var mAppID = null
 var mMessageCallback = null
 var mClientInfoCallback = null
 var mReloadCallback = null
-var mRequestConnectKeyCallback = null
 var mCheckIfModifiedSince = false
 var mHeartbeatTimer = undefined
 var mDeviceInfo = {}
@@ -103,9 +101,11 @@ exports.connectToRemoteServer = function()
 	socket.on('connect', function()
 	{
 		console.log('[file-server.js] Connected to server')
+
 		mIsConnected = true
+
 		EVENTS.publish(EVENTS.CONNECT, { event: 'connected' })
-		//exports.requestConnectKey()
+
 		mSessionID = SETTINGS.getSessionID()
 
 		console.log('[file-server.js] workbench.connected session: ' + mSessionID)
@@ -514,16 +514,6 @@ exports.setClientInfoCallbackFun = function(fun)
 exports.setReloadCallbackFun = function(fun)
 {
 	mReloadCallback = fun
-}
-
-/**
- * External.
- *
- * Callback form: fun(message)
- */
-exports.setRequestConnectKeyCallbackFun = function(fun)
-{
-	mRequestConnectKeyCallback = fun
 }
 
 /**

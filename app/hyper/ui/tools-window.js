@@ -5,7 +5,6 @@ $(function()
 
 	var OS = require('os')
 	var SETTINGS = require('../settings/settings.js')
-	var LOGGER = require('../server/log.js')
 	var MAIN = require('electron').remote.getGlobal('main');
 
   // Listener for messages from main.js

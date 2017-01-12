@@ -173,7 +173,7 @@ exports.getOrCreateMyAppsPath = function() {
       FSEXTRA.mkdirsSync(myAppsDir)
     } catch (error) {
       window.alert(`Something went wrong creating '${myAppsDir}'.`)
-      LOGGER.log('[main-window-func.js] Error in getOrCreateMyAppsPath: ' + error)
+      console.log('[main-window-func.js] Error in getOrCreateMyAppsPath: ' + error)
       return
     }
   }

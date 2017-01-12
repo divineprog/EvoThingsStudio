@@ -77,7 +77,7 @@ hyper.UI.main = function()
       if ('eval' == arg.message) {
         hyper.SERVER.evalJS(arg.code, arg.client)
       } else if ('setSession' == arg.message) {
-        LOGGER.log('[main-window-func.js] ==== session set to ' + arg.sid)
+        console.log('[main-window-func.js] ==== session set to ' + arg.sid)
       }
     });
 

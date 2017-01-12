@@ -27,7 +27,6 @@ var OS = require('os')
 var FS = require('fs')
 var PATH = require('path')
 var IO = require('socket.io-client')
-var LOGGER = require('./log.js')
 var SETTINGS = require('../settings/settings.js')
 var SERVER = require('./file-server.js')
 var EVENTS = require('./system-events.js')
@@ -50,22 +49,22 @@ exports.createLoginClient = function()
 
 exports.setUser = function(uobj)
 {
-	LOGGER.log('[user-handler.js] LOGIN: setting user to "'+uobj.name+'"')
-	LOGGER.log('[user-handler.js] LOGIN: Listing user object:')
-	LOGGER.log(uobj)
+	console.log('[user-handler.js] LOGIN: setting user to "'+uobj.name+'"')
+	console.log('[user-handler.js] LOGIN: Listing user object:')
+	console.log(uobj)
 	mUser = uobj
 }
 
 exports.clearUser = function()
 {
-	LOGGER.log('[user-handler.js] LOGIN:clearing user')
+	console.log('[user-handler.js] LOGIN:clearing user')
 	mUser = undefined
 }
 
 exports.startLoginSequence = function()
 {
 	var sessionID = SERVER.getSessionID()
-	LOGGER.log('[user-handler.js] LOGIN: starting Login Sequence. Registering authentication callback with proxy. sessionID = '+sessionID)
+	console.log('[user-handler.js] LOGIN: starting Login Sequence. Registering authentication callback with proxy. sessionID = '+sessionID)
 	SERVER.sendMessageToServer(undefined, 'workbench.registerauthcallback', { sessionID: sessionID })
 }
 
@@ -76,7 +75,7 @@ exports.getLoginURL = function()
 	var serverAddress = getLoginServerAddress()
 	var loginURL = serverAddress+'/?uuid='+sessionID+'&loginonly=true'
 
-	LOGGER.log('[user-handler.js] LOGIN: loginURL = '+loginURL)
+	console.log('[user-handler.js] LOGIN: loginURL = '+loginURL)
 
 	return loginURL
 }
@@ -88,13 +87,13 @@ exports.getLogoutURL = function()
 	var serverAddress = getLoginServerAddress()
 	var logoutURL = serverAddress+'/?uuid='+sessionID+'&loginonly=true&logout=true'
 	var checked = SETTINGS.getRememberMe()
-	LOGGER.log('[user-handler.js] checked remember me = '+checked)
+	console.log('[user-handler.js] checked remember me = '+checked)
 	if(!checked)
 	{
 		logoutURL += '&federated'
 	}
 
-	LOGGER.log('[user-handler.js] LOGOUT: logoutURL = '+logoutURL)
+	console.log('[user-handler.js] LOGOUT: logoutURL = '+logoutURL)
 
 	return logoutURL
 }

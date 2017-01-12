@@ -7,7 +7,6 @@ $(function()
 	var OS = require('os')
 	var FS = require('fs')
 	var SETTINGS = require('../settings/settings.js')
-	var LOGGER = require('../server/log.js')
 	var EVENTS = require('../server/system-events.js')
 	// Awful, but I am not sure how to get hold of the BrowserWindow.id otherwise
 	EVENTS.myID = MAIN.viewersWindow.id
@@ -37,7 +36,7 @@ $(function()
 	var NETWORK_TIMEOUT = 6000
 
 	ipcRenderer.on('msg', function(event, arg) {
-	  //LOGGER.log('[user-Viewers.js] Viewers got : ' + event.data.message)
+	  //console.log('[user-Viewers.js] Viewers got : ' + event.data.message)
 	  switch (arg.message) {
 	    case 'hyper.log':
 	      showResult('LOG: ' + event.data.logMessage)
@@ -155,7 +154,7 @@ $(function()
 
 	function onViewersUpdated(viewerlist)
 	{
-		LOGGER.log('[hyper-viewers.js] got viewers updated event-------------------------------------------------------------');
+		console.log('[hyper-viewers.js] got viewers updated event-------------------------------------------------------------');
 		console.dir(viewerlist)
 		if(viewerlist && viewerlist.clients)
 		{

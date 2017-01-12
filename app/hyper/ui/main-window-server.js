@@ -25,11 +25,9 @@ limitations under the License.
 var SETTINGS = require('../settings/settings.js')
 var SERVER = require('../server/file-server.js')
 var MONITOR = require('../server/file-monitor.js')
-var LOGGER = require('../server/log.js')
 var EVENTS = require('../server/system-events.js')
 var FS = require('fs')
 var APP_SETTINGS = require('../server/app-settings.js')
-
 
 /**
  * Server/IO functions.
@@ -46,7 +44,6 @@ exports.defineServerFunctions = function(hyper)
 	hyper.UI.setupServer = function()
 	{
 		SERVER.setClientInfoCallbackFun(clientInfoCallback)
-		SERVER.setRequestConnectKeyCallbackFun(requestConnectKeyCallback)
 
 		MONITOR.setFileSystemChangedCallbackFun(function(changedFiles)
 		{
@@ -142,18 +139,9 @@ exports.defineServerFunctions = function(hyper)
 
 	function clientInfoCallback(message)
 	{
-		LOGGER.log('[main-window-server.js] clientInfoCallback called')
+		console.log('[main-window-server.js] clientInfoCallback called')
 		hyper.UI.mNumberOfConnectedClients = parseInt(message.data.numberOfConnectedClients, 10)
 		hyper.UI.setConnectedCounter(hyper.UI.mNumberOfConnectedClients)
-	}
-
-	// Called when a connect key is sent from the server.
-	function requestConnectKeyCallback(message)
-	{
-		LOGGER.log('[main-window-server.js] requestConnectKeyCallback called for message')
-		//console.dir(message)
-		hyper.UI.setConnectKeyTimeout(message.data.timeout)
-		hyper.UI.displayConnectKey(message.data.connectKey)
 	}
 }
 

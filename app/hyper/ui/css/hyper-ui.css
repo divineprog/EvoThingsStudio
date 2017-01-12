@@ -276,59 +276,6 @@ html, body
 	margin-right: 10px;
 }
 
-.layout-table
-{
-	display: table;
-}
-
-.layout-item
-{
-	display: table-cell;
-	vertical-align: middle;
-}
-
-.connect-key-item
-{
-	font-weight: bold;
-	font-size: 28px;
-	letter-spacing: 1px;
-	font-kerning: none;
-	color: black;
-	background: rgb(245,245,245);
-	padding: 0px 15px;
-	margin-left: 10px;
-	margin-top: 0px;
-	margin-bottom: 0px;
-	min-width: 230px;
-	border: 1px solid #888888;
-	-webkit-border-radius: 4px;
-}
-
-
-#connect-spinner
-{
-	/*display: none;*/
-	/*vertical-align: middle;*/
-	vertical-align: -3px;
-	display: inline-block;
-}
-
-/* Spinning icon on the Get Key button */
-
-.icon-spin-animate
-{
-	/*-webkit-transform-origin: 50% 58%;*/
-	-webkit-animation-name: spinanimation;
-	-webkit-animation-duration: 1.0s;
-	-webkit-animation-iteration-count: infinite;
-	-webkit-animation-timing-function: linear;
-}
-
-@-webkit-keyframes "spinanimation" {
-	from { transform: scale( 1 ) rotate( 0deg );   }
-	to	 { transform: scale( 1 ) rotate( 360deg ); }
-}
-
 #login-screen-login
 {
 	position: absolute;

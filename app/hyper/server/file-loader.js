@@ -22,7 +22,6 @@ limitations under the License.
 
 var FS = require('fs')
 var PATH = require('path')
-var LOGGER = require('./log.js')
 
 // Mime type table.
 var mMimeTypes = getDefaultMimeTypes()
@@ -72,9 +71,9 @@ function createResponse(data, mtime, contentType, ifModifiedSince)
 		var ifModifiedSinceTime = new Date(ifModifiedSince).getTime()
 		var modifiedTime = mtime.getTime()
 
-		//LOGGER.log('[file-loader.js] ifModifiedSince: ' + ifModifiedSince)
-		//LOGGER.log('[file-loader.js] ifModifiedSinceTime: ' + ifModifiedSinceTime)
-		//LOGGER.log('[file-loader.js] modifiedTime: ' + modifiedTime)
+		//console.log('[file-loader.js] ifModifiedSince: ' + ifModifiedSince)
+		//console.log('[file-loader.js] ifModifiedSinceTime: ' + ifModifiedSinceTime)
+		//console.log('[file-loader.js] modifiedTime: ' + modifiedTime)
 
 		if (modifiedTime <= ifModifiedSinceTime)
 		{
@@ -125,7 +124,7 @@ function getFileStatus(fullPath)
 	}
 	catch (ex)
 	{
-		LOGGER.log('[file-loader.js] resource-loader.js: getFileStatus exception: ' + ex)
+		console.log('[file-loader.js] resource-loader.js: getFileStatus exception: ' + ex)
 		return null
 	}
 }

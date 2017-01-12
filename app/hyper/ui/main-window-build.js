@@ -23,7 +23,6 @@ limitations under the License.
 /*** Imported modules ***/
 
 var SETTINGS = require('../settings/settings.js')
-var LOGGER = require('../server/log.js')
 var SERVER = require('../server/file-server.js')
 var APP_SETTINGS = require('../server/app-settings.js')
 var FILEUTIL = require('../server/file-util.js')
@@ -54,7 +53,7 @@ exports.defineBuildFunctions = function(hyper)
 		if (mRunAppGuard) { return }
 		mRunAppGuard = true
 
-		LOGGER.log('[main-window-build.js] runApp: ' + path)
+		console.log('[main-window-build.js] runApp: ' + path)
 
 		// Stop monitoring files while building.
 		MONITOR.stopFileSystemMonitor()

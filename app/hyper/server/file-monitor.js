@@ -25,7 +25,6 @@ limitations under the License.
 var FS = require('fs')
 var PATH = require('path')
 var FILEUTIL = require('./file-util.js')
-var LOGGER = require('./log.js')
 
 /*** File traversal variables ***/
 
@@ -176,7 +175,7 @@ function fileSystemMonitorWorker(path, level, changedFiles)
 		var files = FS.readdirSync(path)
 		for (var i in files)
 		{
-			LOGGER.log(PATH.join(path,files[i]))
+			console.log(PATH.join(path,files[i]))
 		}
 		return false
 */
@@ -195,10 +194,10 @@ function fileSystemMonitorWorker(path, level, changedFiles)
 					++mFileCounter
 				}
 
-				//LOGGER.log('[file-monitor.js] Checking file: ' + files[i] + ': ' + stat.mtime)
+				//console.log('[file-monitor.js] Checking file: ' + files[i] + ': ' + stat.mtime)
 				if (stat.isDirectory() && level > 0)
 				{
-					//LOGGER.log('[file-monitor.js] Decending into: ' + path + files[i])
+					//console.log('[file-monitor.js] Decending into: ' + path + files[i])
 					fileSystemMonitorWorker(
 						fullFilePath,
 						level - 1,
@@ -216,13 +215,13 @@ function fileSystemMonitorWorker(path, level, changedFiles)
 			}
 			catch (err2)
 			{
-				LOGGER.log('[file-monitor.js] ERROR in fileSystemMonitorWorker inner loop: ' + err2)
+				console.log('[file-monitor.js] ERROR in fileSystemMonitorWorker inner loop: ' + err2)
 			}
 		}
 	}
 	catch(err1)
 	{
-		LOGGER.log('[file-monitor.js] ERROR in fileSystemMonitorWorker: ' + err1)
+		console.log('[file-monitor.js] ERROR in fileSystemMonitorWorker: ' + err1)
 	}
 }
 

@@ -36,7 +36,6 @@ var EVENTS = require('../server/system-events.js')
 EVENTS.myID = MAIN.workbenchWindow.id
 var APP_SETTINGS = require('../server/app-settings.js')
 var SETTINGS = require('../settings/settings.js')
-var LOGGER = require('../server/log.js')
 var SERVER = require('../server/file-server.js')
 var MONITOR = require('../server/file-monitor.js')
 var UTIL = require('../util/util.js')
@@ -59,7 +58,6 @@ var mEntryMenuIdCounter = 0
  */
 exports.defineUIFunctions = function(hyper)
 {
-	var mConnectKeyTimer
 	// The merged final array of metadata on Examples, Libraries and Projects
 	hyper.UI.mNewsList = []
 	hyper.UI.mExampleList = []
@@ -76,7 +74,6 @@ exports.defineUIFunctions = function(hyper)
 
 	hyper.UI.setupUI = function()
 	{
-		styleUI()
 		setUIActions()
 		setWindowActions()
 		setUpFileDrop()
@@ -133,25 +130,6 @@ exports.defineUIFunctions = function(hyper)
 		var data = FILEUTIL.readFileSync('package.json')
 		var applicationName = JSON.parse(data).name
 		return applicationName
-	}
-
-	function styleUI()
-	{
-		// Put some content into connect key field to make field visible.
-		// Skip for now. hyper.UI.displayConnectKey('Click "Get Key"')
-
-		// Apply jQuery UI button style.
-		//hyper.UI.$('button').button()
-
-		// Set layout properties.
-		/*
-		hyper.UI.$('body').layout(
-		{
-			west: { size: 400 },
-			center: { maskContents: true },
-			fxName: 'none'
-		})
-		*/
 	}
 
 	function setUIActions()
@@ -822,7 +800,7 @@ exports.defineUIFunctions = function(hyper)
 		}
 
 		// Debug logging.
-		LOGGER.log('[main-window-func.js] Open folder: ' + path)
+		console.log('[main-window-func.js] Open folder: ' + path)
 
 		// We want to show the folder but need an item in it to show,
 		// we use either evothings.json or index.html
@@ -934,7 +912,7 @@ exports.defineUIFunctions = function(hyper)
         // And finally show them too
         hyper.UI.displayNewsList()
    	  }, statusAndUrl => {
-    	  LOGGER.log('[main-window-func.js] Error in updateNewsList: ' + statusAndUrl[0] + ' downloading: ' + statusAndUrl[1])
+    	  console.log('[main-window-func.js] Error in updateNewsList: ' + statusAndUrl[0] + ' downloading: ' + statusAndUrl[1])
         if (!silent) {
           UTIL.alertDownloadError('Something went wrong downloading news list.', statusAndUrl[1], statusAndUrl[0])
     	  }
@@ -1009,7 +987,7 @@ function createNewsEntry(item) {
     	  // Then we can sort them
         hyper.UI.mPluginList.sort(function(a, b) { return a.name.localeCompare(b.name); })
    	  }, statusAndUrl => {
-    	  LOGGER.log('[main-window-func.js] Error in updatePluginList: ' + statusAndUrl[0] + ' downloading: ' + statusAndUrl[1])
+    	  console.log('[main-window-func.js] Error in updatePluginList: ' + statusAndUrl[0] + ' downloading: ' + statusAndUrl[1])
         if (!silent) {
           UTIL.alertDownloadError('Something went wrong downloading plugin list.', statusAndUrl[1], statusAndUrl[0])
     	  }
@@ -1039,7 +1017,7 @@ function createNewsEntry(item) {
     	  // Then we can sort them
         hyper.UI.mBuildConfigList.sort(function(a, b) { return a.name.localeCompare(b.name); })
    	  }, statusAndUrl => {
-    	  LOGGER.log('[main-window-func.js] Error in updateBuildConfigList: ' + statusAndUrl[0] + ' downloading: ' + statusAndUrl[1])
+    	  console.log('[main-window-func.js] Error in updateBuildConfigList: ' + statusAndUrl[0] + ' downloading: ' + statusAndUrl[1])
         if (!silent) {
           UTIL.alertDownloadError('Something went wrong downloading build config list.', statusAndUrl[1], statusAndUrl[0])
     	  }
@@ -1080,7 +1058,7 @@ function createNewsEntry(item) {
         // And finally show them too
         hyper.UI.displayExampleList()
    	  }, statusAndUrl => {
-    	  LOGGER.log('[main-window-func.js] Error in updateExampleList: ' + statusAndUrl[0] + ' downloading: ' + statusAndUrl[1])
+    	  console.log('[main-window-func.js] Error in updateExampleList: ' + statusAndUrl[0] + ' downloading: ' + statusAndUrl[1])
         if (!silent) {
           UTIL.alertDownloadError('Something went wrong downloading example list.', statusAndUrl[1], statusAndUrl[0])
     	  }
@@ -1153,7 +1131,7 @@ function createNewsEntry(item) {
           mUpdatingLists = false
         }
    	  }, statusAndUrl => {
-    	  LOGGER.log('[main-window-func.js] Error in updateLibraryList: ' + statusAndUrl[0] + ' downloading: ' + statusAndUrl[1])
+    	  console.log('[main-window-func.js] Error in updateLibraryList: ' + statusAndUrl[0] + ' downloading: ' + statusAndUrl[1])
         if (!silent) {
           UTIL.alertDownloadError('Something went wrong downloading library list', statusAndUrl[1], statusAndUrl[0])
     	  }
@@ -1204,7 +1182,7 @@ function createNewsEntry(item) {
 
 	hyper.UI.deleteEntry = function(obj)
 	{
-		//LOGGER.log(hyper.UI.$(obj).parent())
+		//console.log(hyper.UI.$(obj).parent())
 		hyper.UI.openRemoveAppDialog(obj)
 	}
 
@@ -1306,12 +1284,8 @@ function createNewsEntry(item) {
 			// Restart server.
 			hyper.UI.connect()
 
-			// Show connect screen.
-			hyper.UI.showTab('connect')
-
-			// Display message.
-			hyper.UI.displayConnectKey(
-				'Server address has been changed. Click GET KEY to get a new connect key.')
+			// Show the initial screen.
+			hyper.UI.showInitialScreen()
 		}
 		SETTINGS.setRunProtocol($('input[name=protocol]:checked').val())
 	}
@@ -1447,7 +1421,7 @@ function createNewsEntry(item) {
 			  cb()
 		  } catch (error) {
 			  window.alert('Something went wrong, could not save app.')
-			  LOGGER.log('[main-window-func.js] Error in copyApp: ' + error)
+			  console.log('[main-window-func.js] Error in copyApp: ' + error)
 		  }
 		}
 	}
@@ -1469,7 +1443,7 @@ function createNewsEntry(item) {
 		  UTIL.download(sourceURL, (zipFile, err) => {
 		    if (err) {
     		  UTIL.alertDownloadError('Something went wrong, could not download app.', sourceURL, err)
-    		  LOGGER.log('[main-window-func.js] Error in copyAppFromURL: ' + err)
+    		  console.log('[main-window-func.js] Error in copyAppFromURL: ' + err)
     		} else {		    
     		  // Extract into targetDir
     		  FSEXTRA.mkdirsSync(targetDir)
@@ -1481,7 +1455,7 @@ function createNewsEntry(item) {
 			// TODO: This doesn't seem to work
 	  	FSEXTRA.removeSync(targetDir)
 		  window.alert('Something went wrong, could not download and unzip app.')
-		  LOGGER.log('[main-window-func.js] Error in copyAppFromURL: ' + error)
+		  console.log('[main-window-func.js] Error in copyAppFromURL: ' + error)
 	  }
 	}
 
@@ -1946,7 +1920,7 @@ function createNewsEntry(item) {
 						if (code != 0) {
 							console.log(`child process exited with code ${code}`);
 							window.alert('Something went wrong stopping Evobox Vagrant machine')
-							LOGGER.log('[main-window-func.js] Error in stopEvobox')
+							console.log('[main-window-func.js] Error in stopEvobox')
 						}
 						cb()
 					})
@@ -1973,7 +1947,7 @@ function createNewsEntry(item) {
 				FSEXTRA.mkdirsSync(resultDir)
 			} catch (error) {
 				window.alert('Something went wrong creating directories for Evobox.')
-				LOGGER.log('[main-window-func.js] Error in startEvobox: ' + error)
+				console.log('[main-window-func.js] Error in startEvobox: ' + error)
 				return
 			}
 		}
@@ -2044,7 +2018,7 @@ function createNewsEntry(item) {
 				if (code != 0) {
 					console.log(`child process exited with code ${code}`);
 					window.alert('Something went wrong starting Evobox Vagrant machine')
-					LOGGER.log('[main-window-func.js] Error in startEvobox')
+					console.log('[main-window-func.js] Error in startEvobox')
 					return
 				} else {
 					cb(path, evoboxDir)
@@ -2140,7 +2114,7 @@ function ensureResDirectory(targetDir, cb) {
 		  UTIL.download(sourceURL, (zipFile, err) => {
 		    if (err) {
   		    UTIL.alertDownloadError('Something went wrong, could not download default res graphics.', sourceURL, err)
-    		  LOGGER.log('[main-window-func.js] Error in ensureResDirectory: ' + err)
+    		  console.log('[main-window-func.js] Error in ensureResDirectory: ' + err)
     		} else {		    
 	    	  UTIL.unzip(zipFile, targetDir)
 		      cb()
@@ -2148,7 +2122,7 @@ function ensureResDirectory(targetDir, cb) {
 	  	})
 	  } catch (error) {
 		  window.alert('Something went wrong, could not download and unzip default res graphics.')
-		  LOGGER.log('[main-window-func.js] Error in ensureResDirectory: ' + error)
+		  console.log('[main-window-func.js] Error in ensureResDirectory: ' + error)
 	  }
 	}
 
@@ -2390,7 +2364,7 @@ JarVerify = "${verifyCommand}"
 			/*var libsPath = APP_SETTINGS.getLibDirFullPath(path)
 	    if (!FS.existsSync(libsPath)) {
 	      window.alert(`The library directory "${libsPath}" does not exist, perhaps you need to add "app-dir": "app", or similar to evothings.json?`)
-	      LOGGER.log("Directory does not exist: " + libsPath)
+	      console.log("Directory does not exist: " + libsPath)
 	      return false
 	    }
 			for (lib of toRemove) {
@@ -2419,7 +2393,7 @@ JarVerify = "${verifyCommand}"
 	   	var libsPath = APP_SETTINGS.getLibDirFullPath(path)
 	    if (!FS.existsSync(libsPath)) {
 	      window.alert(`The library directory "${libsPath}" does not exist, perhaps you need to add "app-dir": "app", or similar to evothings.json?`)
-	      LOGGER.log("Directory does not exist: " + libsPath)
+	      console.log("Directory does not exist: " + libsPath)
 	      return false
 	    }
 			for (lib of toRemove) {
@@ -2453,7 +2427,7 @@ JarVerify = "${verifyCommand}"
 			if (element.length > 0) {
 				element.remove()
 				FILEUTIL.writeFileSync(indexPath, cher.html())
-				LOGGER.log("Removed " + lib + " from " + path)
+				console.log("Removed " + lib + " from " + path)
 			}
 
 			// 2. Remove directory libs/libname
@@ -2492,7 +2466,7 @@ JarVerify = "${verifyCommand}"
 
 				// 3. Write index.html file back to disk
 				FILEUTIL.writeFileSync(indexPath, cher.html())
-				LOGGER.log("Added " + lib + " to " + path)
+				console.log("Added " + lib + " to " + path)
 			} else {
 				eval(FILEUTIL.readFileSync(installScript))
 			}
@@ -2509,7 +2483,7 @@ JarVerify = "${verifyCommand}"
 		  UTIL.download(sourceURL, (zipFile, err) => {
 		    if (err) {
   		    UTIL.alertDownloadError('Something went wrong, could not download library.', sourceURL, err)
-    		  LOGGER.log('[main-window-func.js] Error in copyLibraryFromURL: ' + err)
+    		  console.log('[main-window-func.js] Error in copyLibraryFromURL: ' + err)
     		} else {		    
     		  // Extract into targetDir
     		  FSEXTRA.mkdirsSync(targetDir)
@@ -2521,7 +2495,7 @@ JarVerify = "${verifyCommand}"
 			// TODO: This doesn't seem to work
 			FSEXTRA.removeSync(targetDir)
 		  window.alert('Something went wrong, could not download and unzip library.')
-		  LOGGER.log('[main-window-func.js] Error in copyLibraryFromURL: ' + error)
+		  console.log('[main-window-func.js] Error in copyLibraryFromURL: ' + error)
 	  }
 	}
 
@@ -2560,7 +2534,7 @@ JarVerify = "${verifyCommand}"
 	hyper.UI.showInitialScreen = function()
 	{
 		//hyper.UI.showTab('getting-started')
-		hyper.UI.showTab('connect')
+		hyper.UI.showTab('login')
 	}
 
 	hyper.UI.setStartScreenHelpVisibility = function()
@@ -2604,52 +2578,6 @@ JarVerify = "${verifyCommand}"
 		hyper.UI.stopServer()
 		hyper.UI.setRemoteServerURL(serverURL)
 		hyper.UI.startServer()
-	}
-
-	// Called when the Connect button in the Connect dialog is clicked.
-	hyper.UI.getConnectKeyFromServer = function()
-	{
-		// Show spinner.
-		hyper.UI.$('#connect-spinner').addClass('icon-spin-animate')
-
-		if (!hyper.SERVER.isConnected())
-		{
-			// We are not connected, start the server connection.
-			// This will result in a key being sent to us.
-			hyper.UI.connect()
-		}
-		else
-		{
-			// Already connected, request a new key.
-			hyper.SERVER.requestConnectKey()
-		}
-	}
-
-	hyper.UI.setConnectKeyTimeout = function(timeout)
-	{
-		if (mConnectKeyTimer)
-		{
-			clearTimeout(mConnectKeyTimer)
-		}
-
-		// Set timeout for connect key display.
-		mConnectKeyTimer = setTimeout(
-			function()
-			{
-				hyper.UI.displayConnectKey('Key expired')
-			},
-			timeout)
-	}
-
-	// Variable key is a string, it is either a connect key or a
-	// message from the server.
-	hyper.UI.displayConnectKey = function(key)
-	{
-		// Show connect key field text.
-		hyper.UI.$('#connect-key').text(key)
-
-		// Stop button spinner.
-		hyper.UI.$('#connect-spinner').removeClass('icon-spin-animate')
 	}
 
 	hyper.UI.displaySystemMessage = function(message)

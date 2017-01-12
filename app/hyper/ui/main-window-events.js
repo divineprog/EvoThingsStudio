@@ -23,7 +23,6 @@ limitations under the License.
 /*** Imported modules ***/
 
 var SETTINGS = require('../settings/settings.js')
-var LOGGER = require('../server/log.js')
 var MAIN = require('electron').remote.getGlobal('main');
 var EVENTS = require('../server/system-events.js')
 // Awful, but I am not sure how to get hold of the BrowserWindow.id otherwise
@@ -40,11 +39,11 @@ exports.defineUIEvents = function(hyper)
 	var DISCONNECT_DELAY = 30000
 	var mDisconnectTimer = 0
 
-	// ************** Connect Key Button **************
+	// ************** Login Button **************
 
-	hyper.UI.$('#button-get-connect-key').click(function()
+	hyper.UI.$('.button-do-login').click(function()
 	{
-		hyper.UI.getConnectKeyFromServer()
+		// TODO: Login
 	})
 
 	// ************** Getting Started Screen Button **************
@@ -139,16 +138,14 @@ exports.defineUIEvents = function(hyper)
 		hyper.UI.openInBrowser(MAIN.DOC + '/tutorials/instrumentation.html')
 	})
 
+	// ************** Login Screen Button **************
 
-
-	// ************** Connect Screen Button **************
-
-	hyper.UI.$('#button-connect, .button-open-login-screen').click(function()
+	hyper.UI.$('#button-login, .button-open-login-screen').click(function()
 	{
-		hyper.UI.showTab('connect')
+		hyper.UI.showTab('login')
 	})
 
-	// ************** Connect Screen Toggle Help Button **************
+	// ************** Login Screen Toggle Help Button **************
 
 	hyper.UI.$('.button-toggle-help').click(function()
 	{
@@ -364,9 +361,8 @@ exports.defineUIEvents = function(hyper)
 	// ************** Login Button **************
 
 	// Set login button action handler. The button toggles login/logout.
-	hyper.UI.$('#button-login').click(function()
+	hyper.UI.$('.button-do-login').click(function()
 	{
-		console.log('personalize clicked')
 		var user = USER_HANDLER.getUser()
 		if (user && !user.picture)
 		{
@@ -397,25 +393,17 @@ exports.defineUIEvents = function(hyper)
 
 	EVENTS.subscribe(EVENTS.LOGIN, function(user)
 	{
-		LOGGER.log('[main-window-events.js] *** User has logged in: ' + user)
+		console.log('[main-window-events.js] *** User has logged in: ' + user)
 		console.dir(user)
 
 		hideLoginScreen()
 		showUserInfo(user)
-		if(user.picture)
-		{
-			hideLoginButton()
-		}
-		else
-		{
-			showLoginButton()
-		}
 	})
 
 	EVENTS.subscribe(EVENTS.LOGOUT, function()
 	{
 		// TODO: Pass user id to the Run/Reload messaging code (file-server.js).
-		LOGGER.log('[main-window-events.js] *** User has logged out ***')
+		console.log('[main-window-events.js] *** User has logged out ***')
 
 		displayLoginButton()
 	})
@@ -424,7 +412,7 @@ exports.defineUIEvents = function(hyper)
 
 	EVENTS.subscribe(EVENTS.CONNECT, function(obj)
 	{
-		LOGGER.log('[main-window-events.js] socket.io connect')
+		console.log('[main-window-events.js] socket.io connect')
 		if(mDisconnectTimer)
 		{
 			clearTimeout(mDisconnectTimer)
@@ -434,7 +422,7 @@ exports.defineUIEvents = function(hyper)
 
 	EVENTS.subscribe(EVENTS.DISCONNECT, function(obj)
 	{
-		LOGGER.log('[main-window-events.js] socket.io disconnect')
+		console.log('[main-window-events.js] socket.io disconnect')
 		mDisconnectTimer = setTimeout(function()
 		{
 			//logoutUser()
@@ -447,7 +435,7 @@ exports.defineUIEvents = function(hyper)
 
 		USER_HANDLER.startLoginSequence()
 		var loginURL = USER_HANDLER.getLoginURL()
-		LOGGER.log('[main-window-events.js] loginURL : ' + loginURL)
+		console.log('[main-window-events.js] loginURL : ' + loginURL)
 		showLoginScreen(loginURL)
 	}
 
@@ -469,33 +457,6 @@ exports.defineUIEvents = function(hyper)
 				}
 			}, 1000)
 		}
-	}
-
-	function disableLoginButton()
-	{
-		hyper.UI.$('#button-login').attr('disabled','disabled')
-	}
-
-	function enableLoginButton()
-	{
-		hyper.UI.$('#button-login').removeAttr('disabled')
-	}
-
-	function hideLoginButton()
-	{
-		hyper.UI.$('#button-login').hide()
-	}
-
-	function showLoginButton()
-	{
-		hyper.UI.$('#button-login').show()
-	}
-
-	function displayLoginButton()
-	{
-		hyper.UI.$('#button-login').html('Personalize')
-		hyper.UI.$('#login-info').html('')
-		hyper.UI.$('#login-screen-login').hide()
 	}
 
 	function showLoginScreen(loginURL)
@@ -536,9 +497,6 @@ exports.defineUIEvents = function(hyper)
 			var infoText = ' '+user.name
 			var infoHTML = imageHTML + infoText
 			hyper.UI.$('#login-info').html(infoHTML)
-
-			// Change login button text to logout.
-			//hyper.UI.$('#button-login').html('Logout')
 		}
 		else
 		{
@@ -636,7 +594,5 @@ exports.defineUIEvents = function(hyper)
 		// Display a message for the user.
 		hyper.UI.displaySystemMessage(message)
 	})
-
-	hideLoginButton()
 }
 
